@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[NAME] — Platform &amp; Systems Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0A0B0D;
+    --graphite:#14161A;
+    --graphite-2:#1A1D22;
+    --signal:#5B8DEF;
+    --signal-dim:#3E5A99;
+    --paper:#EDEEF0;
+    --dim:#6B6F76;
+    --line:rgba(237,238,240,.08);
+    --line-2:rgba(237,238,240,.14);
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--void);
+    color:var(--paper);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--signal);color:var(--void)}
+
+  .mono{font-family:'JetBrains Mono',monospace}
+  .disp{font-family:'Space Grotesk',sans-serif}
+
+  /* ============ LOADER ============ */
+  #loader{
+    position:fixed;inset:0;z-index:1000;
+    background:var(--void);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:opacity .8s var(--ease), visibility .8s;
+  }
+  #loader.done{opacity:0;visibility:hidden;pointer-events:none}
+  .ldr-wrap{display:flex;flex-direction:column;align-items:center;gap:28px}
+  .ldr-svg{width:min(46vw,220px);height:auto}
+  .ldr-readout{
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+  }
+  .ldr-line{
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+    display:flex;align-items:center;gap:10px;
+  }
+  .ldr-line .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);
+    box-shadow:0 0 8px var(--signal);animation:pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .ldr-pct{font-size:13px;color:var(--paper);min-width:38px;text-align:right}
+  .ldr-bar{width:min(46vw,220px);height:1px;background:var(--line-2);position:relative;overflow:hidden}
+  .ldr-bar i{position:absolute;inset:0 100% 0 0;background:var(--signal);transition:right .08s linear}
+
+  /* ============ NAV ============ */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:80;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:24px clamp(20px,4vw,48px);
+    background:linear-gradient(180deg,rgba(10,11,13,.7),transparent);
+  }
+  .logo{
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px;
+    color:var(--paper);text-decoration:none;letter-spacing:-.01em;
+  }
+  .logo .br{color:var(--signal)}
+  .nav-r{display:flex;gap:clamp(20px,3vw,40px);align-items:center}
+  .nav-r a{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .3s;
+    position:relative;
+  }
+  .nav-r a:hover{color:var(--paper)}
+  .nav-r a.status{
+    color:var(--signal);display:flex;align-items:center;gap:7px;
+  }
+  .nav-r a.status .dot{width:5px;height:5px;border-radius:50%;background:var(--signal);
+    box-shadow:0 0 6px var(--signal);animation:pulse 1.4s ease-in-out infinite}
+
+  /* ============ HERO ============ */
+  .hero{
+    position:relative;height:100vh;min-height:640px;
+    display:flex;flex-direction:column;justify-content:center;
+    overflow:hidden;
+  }
+  .hero canvas{position:absolute;inset:0;z-index:0;width:100%;height:100%;display:block}
+  .hero-vignette{
+    position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 100%, var(--void) 10%, transparent 60%),
+      linear-gradient(180deg, rgba(10,11,13,.25) 0%, transparent 18%, transparent 78%, var(--void) 100%);
+  }
+  .hero-inner{
+    position:relative;z-index:2;
+    padding:0 clamp(20px,5vw,64px);
+    max-width:1100px;
+  }
+  .hero-tag{
+    font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--signal);
+    display:flex;align-items:center;gap:12px;margin-bottom:22px;
+    opacity:0;transform:translateY(14px);animation:rise .8s var(--ease) .3s forwards;
+  }
+  .hero-tag .rule{width:40px;height:1px;background:var(--signal-dim)}
+  .hero h1{
+    font-family:'Space Grotesk',sans-serif;font-weight:700;
+    font-size:clamp(42px,8vw,108px);line-height:.98;letter-spacing:-.03em;
+    color:var(--paper);margin-bottom:24px;
+    opacity:0;transform:translateY(20px);animation:rise .9s var(--ease) .42s forwards;
+  }
+  .hero h1 .ac{color:var(--signal)}
+  .hero p.sub{
+    font-size:clamp(15px,1.6vw,18px);line-height:1.65;color:var(--dim);
+    max-width:520px;margin-bottom:36px;
+    opacity:0;transform:translateY(20px);animation:rise .9s var(--ease) .54s forwards;
+  }
+  .hero-cta{
+    display:flex;gap:16px;align-items:center;flex-wrap:wrap;
+    opacity:0;transform:translateY(20px);animation:rise .9s var(--ease) .66s forwards;
+  }
+  .btn-primary{
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    background:var(--signal);color:var(--void);text-decoration:none;
+    padding:15px 26px;border-radius:3px;transition:.35s var(--ease);
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .btn-primary:hover{background:#7AA3F5;gap:14px}
+  .btn-ghost{
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--paper);text-decoration:none;border:1px solid var(--line-2);
+    padding:15px 26px;border-radius:3px;transition:.35s var(--ease);
+  }
+  .btn-ghost:hover{border-color:var(--signal);color:var(--signal)}
+
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* ---- signature readout (bottom-left, signature element) ---- */
+  .readout{
+    position:absolute;left:clamp(20px,5vw,64px);bottom:clamp(28px,4vw,48px);z-index:3;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--dim);
+    display:flex;flex-direction:column;gap:6px;
+    opacity:0;animation:rise .9s var(--ease) .9s forwards;
+  }
+  .readout .r-row{display:flex;gap:10px;align-items:baseline}
+  .readout .r-key{color:var(--dim);width:88px;flex-shrink:0}
+  .readout .r-val{color:var(--paper)}
+  .readout .r-val.ok{color:var(--signal)}
+  .readout .r-val .blink{display:inline-block;width:6px;height:13px;background:var(--signal);
+    margin-left:4px;vertical-align:-2px;animation:blink 1s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  /* scroll cue */
+  .scrollcue{
+    position:absolute;right:clamp(20px,5vw,64px);bottom:clamp(28px,4vw,48px);z-index:3;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--dim);opacity:0;animation:rise .9s var(--ease) 1s forwards;
+  }
+  .scrollcue .ln{width:1px;height:34px;background:linear-gradient(180deg,var(--signal),transparent);
+    animation:flow 1.8s ease-in-out infinite}
+  @keyframes flow{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.01%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+  @media(max-width:720px){
+    .readout{display:none}
+    nav{padding:18px 20px}
+    .nav-r a:not(.status):not(.menu){display:none}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LOADER ============ -->
+<div id="loader">
+  <div class="ldr-wrap">
+    <svg class="ldr-svg" viewBox="0 0 200 100" id="ldrSvg">
+      <g stroke="var(--line-2)" fill="none" stroke-width="0.6" stroke-dasharray="100 100" pathLength="100" id="ldrPaths">
+        <path d="M 10 20 h 79.5 q 5 0 5 5 v 30"/>
+        <path d="M 180 10 h -69.7 q -5 0 -5 5 v 30"/>
+        <path d="M 130 20 v 21.8 q 0 5 -5 5 h -10"/>
+        <path d="M 170 80 v -21.8 q 0 -5 -5 -5 h -50"/>
+        <path d="M 135 65 h 15 q 5 0 5 5 v 10 q 0 5 -5 5 h -39.8 q -5 0 -5 -5 v -20"/>
+        <path d="M 94.8 95 v -36"/>
+        <path d="M 88 88 v -15 q 0 -5 -5 -5 h -10 q -5 0 -5 -5 v -5 q 0 -5 5 -5 h 14"/>
+        <path d="M 30 30 h 25 q 5 0 5 5 v 6.5 q 0 5 5 5 h 20"/>
+      </g>
+      <rect x="85" y="40" width="30" height="20" rx="2" fill="#101216" stroke="var(--signal-dim)" stroke-width="0.5"/>
+      <text x="91.5" y="52.5" font-family="JetBrains Mono, monospace" font-size="7" fill="#5B8DEF" font-weight="500" letter-spacing="0.04em">SYS</text>
+    </svg>
+    <div class="ldr-readout">
+      <div class="ldr-line"><span class="dot"></span><span id="ldrStatus">Initializing</span></div>
+      <div class="ldr-bar"><i id="ldrBar"></i></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <a href="#" class="logo">[NA<span class="br">ME</span>]</a>
+  <div class="nav-r">
+    <a href="#about">About</a>
+    <a href="#projects">Projects</a>
+    <a href="#research">Research</a>
+    <a href="#contact">Contact</a>
+    <a href="#" class="status"><span class="dot"></span>Open to work</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <canvas id="signalCanvas"></canvas>
+  <div class="hero-vignette"></div>
+
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="rule"></span>Platform &amp; Systems Engineer</div>
+    <h1>I build systems<br>that prove<br>they <span class="ac">don't break</span>.</h1>
+    <p class="sub">[Placeholder bio line — one or two sentences on what you actually do: validation engineering, agentic data pipelines, RAG systems. Specific, not generic.]</p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn-primary">View projects →</a>
+      <a href="#contact" class="btn-ghost">Get in touch</a>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="r-row"><span class="r-key">STATUS</span><span class="r-val ok">ONLINE<span class="blink"></span></span></div>
+    <div class="r-row"><span class="r-key">LOCATION</span><span class="r-val">[CITY, COUNTRY]</span></div>
+    <div class="r-row"><span class="r-key">FOCUS</span><span class="r-val">Validation · Agentic AI</span></div>
+  </div>
+
+  <div class="scrollcue"><span>Scroll</span><span class="ln"></span></div>
+</section>
+
+<!-- placeholder so you can see hero in isolation -->
+<section style="height:100vh;display:flex;align-items:center;justify-content:center;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:13px;">
+  [ next section starts here — about / projects / etc ]
+</section>
+
+<script>
+/* ============ LOADER LOGIC ============ */
+(function(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const statusEl = document.getElementById('ldrStatus');
+  const bar = document.getElementById('ldrBar');
+  const loader = document.getElementById('loader');
+  const messages = ['Initializing','Loading modules','Compiling pipeline','Running checks','Ready'];
+  let p = 0;
+  const dur = reduce ? 1 : 2200;
+  const start = performance.now();
+
+  function tick(now){
+    const t = Math.min((now - start) / dur, 1);
+    p = Math.round(t * 100);
+    bar.style.right = (100 - p) + '%';
+    const msgIdx = Math.min(messages.length - 1, Math.floor(t * messages.length));
+    statusEl.textContent = messages[msgIdx];
+    if(t < 1){ requestAnimationFrame(tick); }
+    else { finish(); }
+  }
+  function finish(){
+    setTimeout(()=>{ loader.classList.add('done'); }, reduce ? 50 : 400);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ============ SIGNAL FIELD SHADER (Canvas 2D, no deps) ============ */
+(function(){
+  const canvas = document.getElementById('signalCanvas');
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let w, h, dpr;
+  let nodes = [];
+  let t = 0;
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth = canvas.parentElement.clientWidth;
+    h = canvas.clientHeight = canvas.parentElement.clientHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    buildNodes();
+  }
+
+  function buildNodes(){
+    // grid of "trace" nodes — sparse, irregular, like a sampled signal field
+    nodes = [];
+    const cols = Math.round(w / 90);
+    const rows = Math.round(h / 90);
+    for(let i=0;i<=cols;i++){
+      for(let j=0;j<=rows;j++){
+        const x = (i/cols)*w + (Math.random()-0.5)*40;
+        const y = (j/rows)*h + (Math.random()-0.5)*40;
+        nodes.push({
+          x, y,
+          baseX: x, baseY: y,
+          phase: Math.random()*Math.PI*2,
+          speed: 0.3 + Math.random()*0.5,
+          amp: 8 + Math.random()*14,
+          pulsePhase: Math.random()*Math.PI*2,
+          pulseSpeed: 0.4 + Math.random()*0.6,
+          r: 0
+        });
+      }
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+
+    // subtle base gradient wash
+    const grad = ctx.createRadialGradient(w*0.7, h*0.25, 0, w*0.7, h*0.25, Math.max(w,h)*0.8);
+    grad.addColorStop(0, 'rgba(91,141,239,0.05)');
+    grad.addColorStop(1, 'rgba(10,11,13,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,w,h);
+
+    t += reduce ? 0 : 0.006;
+
+    // update node positions (gentle drift)
+    for(const n of nodes){
+      n.x = n.baseX + Math.sin(t*n.speed + n.phase) * n.amp;
+      n.y = n.baseY + Math.cos(t*n.speed*0.8 + n.phase) * n.amp * 0.6;
+      n.r = 1 + Math.sin(t*n.pulseSpeed + n.pulsePhase) * 0.8;
+    }
+
+    // connect nearby nodes with faint lines (trace lines)
+    const maxDist = 130;
+    ctx.lineWidth = 0.6;
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const a = nodes[i], b = nodes[j];
+        const dx = a.x-b.x, dy = a.y-b.y;
+        const d = Math.sqrt(dx*dx+dy*dy);
+        if(d < maxDist){
+          const alpha = (1 - d/maxDist) * 0.10;
+          ctx.strokeStyle = `rgba(91,141,239,${alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x,a.y);
+          ctx.lineTo(b.x,b.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // draw nodes
+    for(const n of nodes){
+      const pulse = (Math.sin(t*n.pulseSpeed + n.pulsePhase) + 1) / 2; // 0..1
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(91,141,239,${0.15 + pulse*0.35})`;
+      ctx.fill();
+      if(pulse > 0.82){
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r + (pulse-0.82)*40, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(91,141,239,${(1-(pulse-0.82)*5.5)*0.5})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>
